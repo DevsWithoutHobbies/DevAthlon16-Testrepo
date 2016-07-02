@@ -9,12 +9,28 @@ import org.bukkit.event.player.PlayerMoveEvent;
 class EventListener implements Listener {
     @EventHandler
     void playerMove(PlayerMoveEvent event) {
-        double distance = event.getTo().getY() - event.getFrom().getY();
+        byte block_data = 0;
+        if (event.getPlayer().isSneaking()) {
+            block_data = 6;
+        } else if (event.getPlayer().isSprinting()) {
+            block_data = 14;
+        } else if (event.getPlayer().isFlying()) {
+            block_data = 4;
+        }
 
-        if (distance < -0.2) {
-            Block block = event.getPlayer().getWorld().getBlockAt((int) event.getTo().getX(), (int) event.getTo().getY() - 1, (int) event.getTo().getZ());
-            block.setType(Material.WOOL);
-            block.setData((byte) (block.getY() % 16));
+        int current_y = (int) event.getTo().getY() - 1;
+        while (current_y > 0) {
+            Block block = event.getPlayer().getWorld().getBlockAt(
+                    (int) event.getTo().getX(),
+                    current_y,
+                    (int) event.getTo().getZ()
+            );
+            if (block.getType().isSolid()) {
+                block.setType(Material.WOOL);
+                block.setData(block_data);
+                break;
+            }
+            current_y = current_y - 1;
         }
     }
 }
