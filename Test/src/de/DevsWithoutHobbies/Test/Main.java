@@ -6,7 +6,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("Is jetzt da");
+        this.getServer().getPluginManager().registerEvents(new EventListener(), this);
     }
 
 }
