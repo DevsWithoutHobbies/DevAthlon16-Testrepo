@@ -2,3 +2,19 @@ name: Test
 version: 0.0.1
 author: DevsWithoutHobbies
 main: de.DevsWithoutHobbies.Test.Main
+commands:
+  color:
+    description: Creates a colored block.
+    usage: /<command> radius in_list [block1] [block2] [...]
+    permission: <plugin name>.color
+    permission-message: You don't have <permission>
+  wildcard:
+    description: Wildcard check.
+    usage: /<command> pattern string
+    permission: <plugin name>.wildcard
+    permission-message: You don't have <permission>
+  up:
+    description: Teleports the player <blocks> blocks up.
+    usage: /<command> blocks
+    permission: <plugin name>.up
+    permission-message: You don't have <permission>
