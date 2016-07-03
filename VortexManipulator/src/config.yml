@@ -1,0 +1,5 @@
+mysql-server: 127.0.0.1
+mysql-port: 3306
+mysql-username: minecraft_vortex_manipulator
+mysql-password: minecraft
+mysql-database-name: VortexManipulator

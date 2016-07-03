@@ -10,11 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
 
 public class Main extends JavaPlugin {
 
-    private Connection con = null;
+    Database database = null;
 
     @Override
     public void onEnable() {
@@ -30,18 +31,8 @@ public class Main extends JavaPlugin {
         String password = this.getConfig().getString("mysql-password");
         String database_name = this.getConfig().getString("mysql-database-name");
 
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-
-            con = DriverManager.getConnection("jdbc:mysql://"+server+":"+ port+"/"+ database_name +"?"+"user="+user+"&"+"password="+password);
-        } catch (ClassNotFoundException e) {
-            getLogger().warning("Driver not found");
-        } catch (SQLException e) {
-            getLogger().warning("No Connection Possible");
-            getLogger().warning("SQLException: " + e.getMessage());
-            getLogger().warning("SQLState: " + e.getSQLState());
-            getLogger().warning("VendorError: " + e.getErrorCode());
-        }
+        database = new Database();
+        database.connect(server, port, database_name, user, password);
     }
 
     private void createConfig() {
@@ -64,22 +55,11 @@ public class Main extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
     }
 
-    void updatePlayerSpeed(String playername, double maxspeed) {
-        try {
-            Statement query = con.createStatement();
-
-            String sql_request = "SELECT Username, MaxSpeed, UserID FROM Users WHERE Username LIKE \"" + playername + "\"";
-            ResultSet result = query.executeQuery(sql_request);
-
-            while (result.next()) {
-                if (maxspeed > Float.parseFloat(result.getString("MaxSpeed"))) {
-                    String sql_updated = "UPDATE Users SET MaxSpeed = " + maxspeed + " WHERE UserID = " + result.getString("UserID");
-                    query.executeUpdate(sql_updated);
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+    void updatePlayerSpeed(Player player, double currentSpeed) {
+        List<TableRow> table = database.getData("Users", new String[]{"UserID", "MaxSpeed"}, "Username LIKE \"" + player.getDisplayName() + "\" AND MaxSpeed < " + currentSpeed);
+        for (HashMap<String, String> row: table) {
+            player.sendMessage("New speed record: " + currentSpeed);
+            database.updateData("Users", "MaxSpeed = " + currentSpeed, "UserID = " + row.get("UserID"));
         }
     }
 
@@ -100,7 +80,7 @@ public class Main extends JavaPlugin {
                     int start_z = (int) loc.getZ();
 
                     for (int x = start_x - r; x <= start_x + r; x++) {
-                        for (int y = start_y - r; y <= start_y + r; y++) {
+                        for (int y = start_y + r; y >= start_y - r; y--) {
                             for (int z = start_z - r; z <= start_z + r; z++) {
                                 boolean block_in_list = false;
                                 Block block = player.getWorld().getBlockAt(x, y, z);
@@ -147,21 +127,11 @@ public class Main extends JavaPlugin {
                 sender.sendMessage("This command can only be run by a player.");
             } else {
                 if (args.length == 1) {
-                    try {
-                        Statement query = con.createStatement();
 
-                        String sql = "SELECT Username, MaxSpeed FROM Users WHERE Username LIKE \"" + args[0] + "\"";
-                        ResultSet result = query.executeQuery(sql);
-
-                        while (result.next()) {
-                            sender.sendMessage(result.getString("Username") + " has a max speed of " + result.getString("MaxSpeed"));
-                        }
-
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    List<TableRow> table = database.getData("Users", new String[]{"Username", "MaxSpeed"}, "Username LIKE \"" + args[0] + "\"");
+                    for (TableRow row: table) {
+                        sender.sendMessage(row.get("Username") + " has a max speed of " + row.get("MaxSpeed"));
                     }
-
-
                     return true;
                 }
             }

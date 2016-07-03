@@ -1,0 +1,20 @@
+name: VortexManipulator
+version: 0.0.1
+author: DevsWithoutHobbies
+main: de.DevsWithoutHobbies.VortexManipulator.Main
+commands:
+  vm_info:
+    description: Get information about your vortex manipulator.
+    usage: /<command>
+    permission: <plugin name>.vm_info
+    permission-message: You don't have <permission>
+  vm_home:
+    description: Teleport to your home location.
+    usage: /<command>
+    permission: <plugin name>.vm_home
+    permission-message: You don't have <permission>
+  vm_location:
+    description: Teleport to a given location.
+    usage: /<command> <x> <y> <z>
+    permission: <plugin name>.vm_location
+    permission-message: You don't have <permission>

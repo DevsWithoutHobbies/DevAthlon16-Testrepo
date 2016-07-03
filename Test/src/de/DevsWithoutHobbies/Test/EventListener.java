@@ -8,9 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.List;
 import java.util.Set;
 
 import static java.lang.Math.pow;
@@ -24,6 +26,20 @@ class EventListener implements Listener {
         this.plugin = instance;
     }
 
+
+    @EventHandler
+    void playerLogin(PlayerLoginEvent event) {
+        String name = event.getPlayer().getDisplayName();
+        System.out.println(name);
+        List<TableRow> table = plugin.database.getData("Users", new String[]{"UserID"}, "Username LIKE \"" + name + "\"");
+        if (table.size() == 0) {
+            TableRow row = new TableRow();
+            row.put("Username", name);
+            row.put("MaxSpeed", "0");
+            plugin.database.addRow("Users", row);
+        }
+    }
+
     @EventHandler
     void playerMove(PlayerMoveEvent event) {
 
@@ -32,7 +48,7 @@ class EventListener implements Listener {
                 pow(event.getTo().getZ() - event.getFrom().getZ(), 2)
         );
 
-        plugin.updatePlayerSpeed(event.getPlayer().getDisplayName(), speed);
+        plugin.updatePlayerSpeed(event.getPlayer(), speed);
 
         byte block_data = 0;
         if (event.getPlayer().isSneaking()) {
@@ -77,11 +93,23 @@ class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractBlock(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         if (player.getItemInHand().getType() == Material.FISHING_ROD) {
             Location target_block_loc = player.getTargetBlock((Set<Material>) null, 200).getLocation();
-                player.getWorld().strikeLightning(target_block_loc);
+            player.getWorld().strikeLightning(target_block_loc);
             player.getWorld().createExplosion(target_block_loc, 8F);
+        } else if (player.getItemInHand().getType() == Material.DIAMOND_AXE) {
+            final Location target_block_loc = player.getTargetBlock((Set<Material>) null, 200).getLocation();
+            for (int i = 0; i< 100; i++) {
+                new BukkitRunnable() {
+
+                    @Override
+                    public void run() {
+                        player.getWorld().strikeLightning(target_block_loc);
+                    }
+                }.runTaskLater(plugin, 0);
+
+            }
         } else if (player.getItemInHand().getType() == Material.BLAZE_ROD) {
             Location loc = player.getTargetBlock((Set<Material>) null, 200).getLocation();
             loc.setY(loc.getY() + 1);
