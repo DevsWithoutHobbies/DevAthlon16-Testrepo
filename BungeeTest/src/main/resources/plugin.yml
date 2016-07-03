@@ -1,0 +1,4 @@
+name: BungeeTest
+main: de.DevsWithoutHobbies.BungeeTest.Main
+version: 0.0.1
+author: DevsWithoutHobbies
