@@ -73,10 +73,10 @@ public class Main extends JavaPlugin {
         if (max_players > 0) {
             to_teleport.add(player);
         } else {
-           player.sendMessage("Not enough XP: You need at least " + cost);
+           player.sendMessage("Not enough XP: You need at least " + cost + " but you only have " + xp);
         }
         for (Player next_player: player.getWorld().getPlayers()) {
-            if (to_teleport.size() == max_players) {
+            if (to_teleport.size() >= max_players) {
                 break;
             } else if (!to_teleport.contains(next_player) && dist(player.getLocation(), next_player.getLocation()) < 2) {
                 to_teleport.add(next_player);
