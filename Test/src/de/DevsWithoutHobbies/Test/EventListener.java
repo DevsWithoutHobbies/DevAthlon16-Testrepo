@@ -15,7 +15,7 @@ import java.util.Set;
 
 class EventListener implements Listener {
 
-    private Main plugin;
+    private final Main plugin;
 
     EventListener(Main instance) {
         this.plugin = instance;

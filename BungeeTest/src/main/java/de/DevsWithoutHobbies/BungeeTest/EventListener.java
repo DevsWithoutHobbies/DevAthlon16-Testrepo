@@ -9,6 +9,7 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+@SuppressWarnings("WeakerAccess")
 public class EventListener implements Listener {
 
     @EventHandler
