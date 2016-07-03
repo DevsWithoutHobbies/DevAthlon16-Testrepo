@@ -15,6 +15,11 @@ commands:
     permission-message: You don't have <permission>
   up:
     description: Teleports the player <blocks> blocks up.
-    usage: /<command> blocks
+    usage: /<command> <blocks>
     permission: <plugin name>.up
+    permission-message: You don't have <permission>
+  speed:
+    description: Shows max speed of a player.
+    usage: /<command> <player>
+    permission: <plugin name>.speed
     permission-message: You don't have <permission>

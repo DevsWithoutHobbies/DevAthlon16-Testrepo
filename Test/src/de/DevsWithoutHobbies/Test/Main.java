@@ -5,18 +5,43 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.sql.*;
 
 public class Main extends JavaPlugin {
+
+    private Connection con = null;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
         createConfig();
+        connectToMySQL();
+    }
 
+    private void connectToMySQL() {
+        String server = this.getConfig().getString("mysql-server");
+        String port = this.getConfig().getString("mysql-port");
+        String user = this.getConfig().getString("mysql-username");
+        String password = this.getConfig().getString("mysql-password");
+        String database_name = this.getConfig().getString("mysql-database-name");
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+
+            con = DriverManager.getConnection("jdbc:mysql://"+server+":"+ port+"/"+ database_name +"?"+"user="+user+"&"+"password="+password);
+        } catch (ClassNotFoundException e) {
+            getLogger().warning("Driver not found");
+        } catch (SQLException e) {
+            getLogger().warning("No Connection Possible");
+            getLogger().warning("SQLException: " + e.getMessage());
+            getLogger().warning("SQLState: " + e.getSQLState());
+            getLogger().warning("VendorError: " + e.getErrorCode());
+        }
     }
 
     private void createConfig() {
@@ -37,6 +62,25 @@ public class Main extends JavaPlugin {
         }
 
         this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+    }
+
+    void updatePlayerSpeed(String playername, double maxspeed) {
+        try {
+            Statement query = con.createStatement();
+
+            String sql_request = "SELECT Username, MaxSpeed, UserID FROM Users WHERE Username LIKE \"" + playername + "\"";
+            ResultSet result = query.executeQuery(sql_request);
+
+            while (result.next()) {
+                if (maxspeed > Float.parseFloat(result.getString("MaxSpeed"))) {
+                    String sql_updated = "UPDATE Users SET MaxSpeed = " + maxspeed + " WHERE UserID = " + result.getString("UserID");
+                    query.executeUpdate(sql_updated);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -95,6 +139,29 @@ public class Main extends JavaPlugin {
                     player.teleport(loc);
                     loc.setY(loc.getY() - 1);
                     player.getWorld().getBlockAt(loc).setType(Material.GLASS);
+                    return true;
+                }
+            }
+        } else if (cmd.getName().equalsIgnoreCase("speed")) {
+            if (!(sender instanceof Player || sender instanceof ConsoleCommandSender)) {
+                sender.sendMessage("This command can only be run by a player.");
+            } else {
+                if (args.length == 1) {
+                    try {
+                        Statement query = con.createStatement();
+
+                        String sql = "SELECT Username, MaxSpeed FROM Users WHERE Username LIKE \"" + args[0] + "\"";
+                        ResultSet result = query.executeQuery(sql);
+
+                        while (result.next()) {
+                            sender.sendMessage(result.getString("Username") + " has a max speed of " + result.getString("MaxSpeed"));
+                        }
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+
                     return true;
                 }
             }

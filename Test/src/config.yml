@@ -2,3 +2,4 @@ mysql-server: 127.0.0.1
 mysql-port: 3306
 mysql-username: minecraft_test_plugin
 mysql-password: minecraft
+mysql-database-name: MinecraftTestPlugin

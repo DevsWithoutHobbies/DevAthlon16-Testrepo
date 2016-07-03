@@ -13,6 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 class EventListener implements Listener {
 
     private final Main plugin;
@@ -23,6 +26,14 @@ class EventListener implements Listener {
 
     @EventHandler
     void playerMove(PlayerMoveEvent event) {
+
+        Double speed = sqrt(
+                pow(event.getTo().getX() - event.getFrom().getX(), 2) +
+                pow(event.getTo().getZ() - event.getFrom().getZ(), 2)
+        );
+
+        plugin.updatePlayerSpeed(event.getPlayer().getDisplayName(), speed);
+
         byte block_data = 0;
         if (event.getPlayer().isSneaking()) {
             block_data = 6;
