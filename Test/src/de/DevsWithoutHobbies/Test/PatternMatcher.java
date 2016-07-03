@@ -3,12 +3,8 @@ package de.DevsWithoutHobbies.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by noah on 03/07/16.
- */
-
-public class PatternMatcher {
-    public static boolean match(String pattern, String string) {
+class PatternMatcher {
+    static boolean match(String pattern, String string) {
         String new_pattern = pattern.replaceAll("[*]", "\\\\w*");
         new_pattern = new_pattern.replaceAll("[?]", "\\\\w");
         new_pattern = "\\A" + new_pattern.replaceAll("[#]", "\\\\d") + "\\z";
